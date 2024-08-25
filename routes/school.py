@@ -26,8 +26,9 @@ def register_school(app, rt, db):
         '''
 
         table = Table(
-            Tr(Th('Id'), Th('Name'), Th("Full Name"), Th("Description"), Th("Degree Count"), Th("Subject Count"), Th("Student Count")),
-            *[Tr(Td(x[0]), Td(x[1]), Td(x[2]), Td(x[3]), Td(x[4]), Td(x[5]), Td(x[6])) for x in db.execute(query)],
+            Thead(Tr(Th('Id'), Th('Name'), Th("Full Name"), Th("Description"), Th("Degree Count"), Th("Subject Count"), Th("Student Count"))),
+            Tbody(*[Tr(Td(x["id"]), Td(x["name"]), Td(x["full_name"]), Td(x["description"]),
+                 Td(x["degree_count"]), Td(x["subject_count"]), Td(x["student_count"])) for x in db.q(query)]),
             id="student_display", name="student_display",
         )
 

@@ -13,8 +13,8 @@ def get_navbar() :
           ), cls="dropdown")
         ),
         Li(Details(Summary("Degrees"), Ul(
-            Li(A("Add School", href="/add/degree")),
-            Li(A("View Schools", href="/view/degrees")),
+            Li(A("Add Degree", href="/add/degree")),
+            Li(A("View Degrees", href="/view/degrees")),
         ), cls="dropdown")
            ),
         Li(Details(Summary("Student"), Ul(
