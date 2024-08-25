@@ -75,7 +75,20 @@ def register_timetable(app, rt, db):
             ))
 
         course_list = [x.name for x in courses()]
-        # print(course_list)
+        print("View timetable Courselist", course_list)
+
+        query = f'''
+                    select * from course
+                    inner join course_degree on course.id = course_degree.course_id
+                    where course_degree.degree_id = {int(deg)};
+                '''
+
+        course_list2 = {x[0]: x[2] for x in db.execute(query)}
+        course_list2[0] = "-"
+
+        print("View timetable Courselist22", course_list2)
+
+
         heading = H1(f"Timetable", get_year_dropdown(session['year']), get_sem_dropdown(session['sem']), get_degree_dropdown(deg), cls="grid")
         # table1 = Table(
         #     Tr(Th('Time'), Th('Monday'), Th("Tuesday"), Th("Wednesday"), Th("Thursday"),
@@ -120,7 +133,7 @@ def register_timetable(app, rt, db):
         #     id="student_display", name="student_display",
         # )
 
-        page = Div(heading, table2,Br(), style='margin:auto; width:70%;')
+        page = Div(heading, table2,Br(), style='margin:auto; width:70%;', cls="overflow-auto")
         return get_navbar(), page
 
     @rt('/view/timetable/')
@@ -139,7 +152,7 @@ def register_timetable(app, rt, db):
         # session['degree'] = degree if degree else degree = session['degree']
         return Meta(http_equiv="refresh", content=f"0;/view/timetable/?year={year}&sem={sem}&degree={deg}")
 
-    def get_dropdown(course_list, current_value, day, time, rowid) :
+    def get_dropdown(course_list, current_sub_value, day, time, rowid) :
 
         # if day == 'mon' : t.mon = current_value
         # elif day == 'tue' : t.tue = current_value
@@ -154,7 +167,8 @@ def register_timetable(app, rt, db):
         # print(t)
 
         dropdown = Select(
-            *[Option(x, value=course_list.index(x), selected=(True if x == course_list[current_value] else False)) for x in course_list],
+            # Option("-", value=0, selected=(True if current_sub_value == "0" else False), name=f"{day}", id=f"{day}"),
+            *[Option(course_name, value=course_id, selected=(True if course_name == course_list[current_sub_value] else False)) for course_id, course_name in course_list.items()],
             name=f"{day}", id=f"{day}"
         )
 
@@ -164,17 +178,31 @@ def register_timetable(app, rt, db):
                     # Hidden(name="day", value=day),
                     Hidden(name="id", value=rowid),
                     A("Change", hx_post="/view/timetable/edit/"))
-        print("Course list index", course_list.index("Computer Vision"))
+        # print("Course list index", course_list.index("Computer Vision"))
 
         return cont
 
 
-    def get_td_template(course_list, collist, x, y, i) :
-        cont = Td(course_list[x[collist[y+i]]], A("Edit",
-                            hx_put=f"/view/timetable/edit/?day={collist[y+i]}&time={x["time"]}&cur_val={x[collist[y+i]]}&rowid={x["id"]}",
-                                                             hx_target=f"#edit_main-{i}{x["id"]}", hx_swap="outerHTML"),
-                             id=f"edit_main-{i}{x["id"]}")
+    def get_td_template(course_list, collist, deg, ttable_row, day_index, i) :
+        cont = Td(course_list[int(ttable_row[collist[day_index+i]])], A("Edit",
+                            hx_put=f"/view/timetable/edit/?deg={deg}&day={collist[day_index+i]}&time={ttable_row["time"]}&cur_sub_id={ttable_row[collist[day_index+i]]}&rowid={ttable_row["id"]}",
+                                                             hx_target=f"#edit_main-{i}{ttable_row["id"]}", hx_swap="outerHTML"),
+                             id=f"edit_main-{i}{ttable_row["id"]}")
+        print("Inside get_td_template", course_list, collist, deg, ttable_row, day_index, i, course_list[int(ttable_row[collist[day_index+i]])],
+              collist[day_index+i], ttable_row["time"], ttable_row[collist[day_index+i]], ttable_row["id"], "\n")
         return cont
+
+    def get_deg_courselist(deg):
+        query = f'''
+                            select * from course
+                            inner join course_degree on course.id = course_degree.course_id
+                            where course_degree.degree_id = {int(deg)}
+                        '''
+
+        course_list = {x[0]: x[2] for x in db.execute(query)}
+        course_list[0] = "-"
+
+        return course_list
 
     @rt('/view/timetable/edit/')
     def get(session, year:str=None, sem:str=None, deg:str=None):
@@ -186,17 +214,27 @@ def register_timetable(app, rt, db):
         if deg : session['degree'] = deg
         else : deg = session['degree']
 
-        course_list = [x.name for x in courses()]
+        print("Inside Get edit", year, sem, deg)
+
+        query = f'''
+            select * from course
+            inner join course_degree on course.id = course_degree.course_id
+            where course_degree.degree_id = {int(deg)};
+        '''
+
+        course_list = {x[0]:x[2] for x in db.execute(query)}
+        course_list[0] = "-"
+        print(course_list)
         time_list = [x.time for x in timetable(where=f"year='{year}' and sem='{sem}' and degree_id={int(deg)}")]
         ttble = timetable(where=f"year='{year}' and sem='{sem}' and degree_id={int(deg)}", as_cls=False)
 
         collist = [x.name for x in timetable.columns]
-        y = 5  # starting index of days in timetable table
+        day_index = 5  # starting index of days in timetable table
 
         table2 = Form(Table(
-            Tr(Th('Day'), *([Th(x) for x in time_list])),
-            *[Tr(Td(z), *[get_td_template(course_list, collist, x, y, i) for x in ttble])
-              for i, z in enumerate(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'])],
+            Tr(Th('Day'), *([Th(time) for time in time_list])),
+            *[Tr(Td(day), *[get_td_template(course_list, collist, deg, row, day_index, i) for row in ttble])
+              for i, day in enumerate(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'])],
             # Tr(Td('Monday'), *[Td(x[collist[5]]) for x in ttble]),
             # Tr(Td('Tuesday'), *[Td(course_list[x.tue]) for x in ttble]),
             # Tr(Td('Wednesday'), *[Td(course_list[x.wed]) for x in ttble]),
@@ -211,11 +249,12 @@ def register_timetable(app, rt, db):
         return table2
 
     @rt('/view/timetable/edit/')
-    def put(day:str, time:str, cur_val:str, rowid:int):
-        print(day, time, cur_val)
-        course_list = [x.name for x in courses()]
+    def put(deg:str, day:str, time:str, cur_sub_id:str, rowid:int):
+        print("Inside Put",day, time, cur_sub_id, rowid)
+
+        course_list = get_deg_courselist(int(deg))
         # timetable.update(1, mon=1, tue=2, wed=3, thu=4, fri=5, sat=6)
-        cont = Td(get_dropdown(course_list, int(cur_val), day, time, rowid))
+        cont = Td(get_dropdown(course_list, int(cur_sub_id), day, time, rowid))
         return cont
 
     @rt('/view/timetable/edit/')
