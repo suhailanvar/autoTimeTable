@@ -2,11 +2,7 @@ from fasthtml.common import *
 def get_navbar() :
     navbar = Article(Nav(Ul(
         Li((A("AutoTimeTable", href="/"))),
-        Li(Details(Summary("Course"), Ul(
-            Li(A("Add Course", href="/add/course")),
-            Li(A("View Course", href="/view/course")),
-          ), cls="dropdown")
-        ),
+
         Li(Details(Summary("Schools"), Ul(
             Li(A("Add School", href="/add/school")),
             Li(A("View Schools", href="/view/schools")),
@@ -15,6 +11,11 @@ def get_navbar() :
         Li(Details(Summary("Degrees"), Ul(
             Li(A("Add Degree", href="/add/degree")),
             Li(A("View Degrees", href="/view/degrees")),
+        ), cls="dropdown")
+           ),
+        Li(Details(Summary("Course"), Ul(
+            Li(A("Add Course", href="/add/course")),
+            Li(A("View Course", href="/view/course")),
         ), cls="dropdown")
            ),
         Li(Details(Summary("Student"), Ul(
@@ -29,7 +30,7 @@ def get_navbar() :
            ),
         Li(Details(Summary("Electives"), Ul(
             Li(A("Add Elective", href="/add/electives")),
-            Li(A("View Electives", href="/view/electives")),
+            Li(A("View Electives", href="/electives/view/")),
         ), cls="dropdown")
            ),
 

@@ -188,8 +188,8 @@ def register_timetable(app, rt, db):
                             hx_put=f"/view/timetable/edit/?deg={deg}&day={collist[day_index+i]}&time={ttable_row["time"]}&cur_sub_id={ttable_row[collist[day_index+i]]}&rowid={ttable_row["id"]}",
                                                              hx_target=f"#edit_main-{i}{ttable_row["id"]}", hx_swap="outerHTML"),
                              id=f"edit_main-{i}{ttable_row["id"]}")
-        print("Inside get_td_template", course_list, collist, deg, ttable_row, day_index, i, course_list[int(ttable_row[collist[day_index+i]])],
-              collist[day_index+i], ttable_row["time"], ttable_row[collist[day_index+i]], ttable_row["id"], "\n")
+        # print("Inside get_td_template", course_list, collist, deg, ttable_row, day_index, i, course_list[int(ttable_row[collist[day_index+i]])],
+        #       collist[day_index+i], ttable_row["time"], ttable_row[collist[day_index+i]], ttable_row["id"], "\n")
         return cont
 
     def get_deg_courselist(deg):
@@ -250,7 +250,7 @@ def register_timetable(app, rt, db):
 
     @rt('/view/timetable/edit/')
     def put(deg:str, day:str, time:str, cur_sub_id:str, rowid:int):
-        print("Inside Put",day, time, cur_sub_id, rowid)
+        # print("Inside Put",day, time, cur_sub_id, rowid)
 
         course_list = get_deg_courselist(int(deg))
         # timetable.update(1, mon=1, tue=2, wed=3, thu=4, fri=5, sat=6)
