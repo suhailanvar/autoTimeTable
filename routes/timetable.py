@@ -29,7 +29,7 @@ def register_timetable(app, rt, db):
     def get(session, year:str=None, sem:str=None, deg:str=None):
 
         # print("Inside Get sess",session)
-        print("Inside Get2",year, sem, deg)
+        # print("Inside Get2",year, sem, deg)
 
         # if not session['year'] :
         #     if year : session['year'] = year
@@ -46,12 +46,12 @@ def register_timetable(app, rt, db):
         #     else : session['degree'] = 1
         # else : deg = session['degree']
 
-        if not year : year = "2024"
+        if not year : year = "2024"  # get this data using datetime
         if not sem : sem = "3"
         if not deg : deg = "2"
 
         # print("Inside Get3 sess", year, sem, deg)
-        print("Inside Get4", year, sem, deg)
+        # print("Inside Get4", year, sem, deg)
 
         # print(session)
 
@@ -119,7 +119,7 @@ def register_timetable(app, rt, db):
             Tr(Td('Thursday'), *[Td(course_list[x.thu]) for x in ttble]),
             Tr(Td('Friday'), *[Td(course_list[x.fri]) for x in ttble]),
             Tr(Td('Saturday'), *[Td(course_list[x.sat]) for x in ttble]),
-            Tr(Td(A("Edit", href="/view/timetable/edit/"), colspan=10)),
+            Tr(Td(A("Edit", href=f"/view/timetable/edit/?year={year}&sem={sem}&deg={deg}"), colspan=10)),
             id="student_display", name="student_display",
 
         )
@@ -212,12 +212,12 @@ def register_timetable(app, rt, db):
     @rt('/view/timetable/edit/')
     def get(session, year:str=None, sem:str=None, deg:str=None):
 
-        if year : session['year'] = year
-        else : year = session['year']
-        if sem : session['sem'] = sem
-        else : sem = session['sem']
-        if deg : session['degree'] = deg
-        else : deg = session['degree']
+        # if year : session['year'] = year
+        # else : year = session['year']
+        # if sem : session['sem'] = sem
+        # else : sem = session['sem']
+        # if deg : session['degree'] = deg
+        # else : deg = session['degree']
 
         print("Inside Get edit", year, sem, deg)
 
