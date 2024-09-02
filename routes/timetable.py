@@ -1,4 +1,5 @@
 from fasthtml.common import *
+from fasthtml.common import *
 from nav import get_navbar
 def register_timetable(app, rt, db):
     courses = db.t.course
@@ -27,25 +28,29 @@ def register_timetable(app, rt, db):
     @rt('/view/timetable/')
     def get(session, year:str=None, sem:str=None, deg:str=None):
 
-        print("Inside Get sess",session)
+        # print("Inside Get sess",session)
         print("Inside Get2",year, sem, deg)
 
-        if not session['year'] :
-            if year : session['year'] = year
-            else : session['year'] = "2024"
-        else : year = session['year']
+        # if not session['year'] :
+        #     if year : session['year'] = year
+        #     else : session['year'] = "2024"
+        # else : year = session['year']
+        #
+        # if not session['sem'] :
+        #     if sem : session['sem'] = sem
+        #     else : session['sem'] = "3"
+        # else : sem = session['sem']
+        #
+        # if not session['degree'] :
+        #     if deg : session['degree'] = deg
+        #     else : session['degree'] = 1
+        # else : deg = session['degree']
 
-        if not session['sem'] :
-            if sem : session['sem'] = sem
-            else : session['sem'] = "3"
-        else : sem = session['sem']
+        if not year : year = "2024"
+        if not sem : sem = "3"
+        if not deg : deg = "2"
 
-        if not session['degree'] :
-            if deg : session['degree'] = deg
-            else : session['degree'] = 1
-        else : deg = session['degree']
-
-        print("Inside Get3 sess", year, sem, deg)
+        # print("Inside Get3 sess", year, sem, deg)
         print("Inside Get4", year, sem, deg)
 
         # print(session)
@@ -66,12 +71,12 @@ def register_timetable(app, rt, db):
                 name="sem", id="sem"
             ))
 
-        def get_degree_dropdown(deg):
+        def get_degree_dropdown(local_deg):
             degreelist = [x for x in degree()]
             # print(degreelist)
             return Form(Select(
-                *[Option(x.name, value=x.id, selected=(True if x.id == int(deg) else False)) for x in degreelist],
-                name="deg", id="deg", hx_post="/view/timetable/", hx_trigger="change"
+                *[Option(x.name, value=x.id, selected=(True if x.id == int(local_deg) else False)) for x in degreelist],
+                name="deg", id="deg", hx_post=f"/view/timetable/{year}-{sem}-{local_deg}", hx_trigger="change"
             ))
 
         course_list = [x.name for x in courses()]
@@ -86,10 +91,10 @@ def register_timetable(app, rt, db):
         course_list2 = {x[0]: x[2] for x in db.execute(query)}
         course_list2[0] = "-"
 
-        print("View timetable Courselist22", course_list2)
+        # print("View timetable Courselist22", course_list2)
 
 
-        heading = H1(f"Timetable", get_year_dropdown(session['year']), get_sem_dropdown(session['sem']), get_degree_dropdown(deg), cls="grid")
+        heading = H1(f"Timetable", get_year_dropdown(year), get_sem_dropdown(sem), get_degree_dropdown(deg), cls="grid")
         # table1 = Table(
         #     Tr(Th('Time'), Th('Monday'), Th("Tuesday"), Th("Wednesday"), Th("Thursday"),
         #        Th("Friday"), Th("Saturday"), Th("Sunday")),
@@ -136,21 +141,21 @@ def register_timetable(app, rt, db):
         page = Div(heading, table2,Br(), style='margin:auto; width:70%;', cls="overflow-auto")
         return get_navbar(), page
 
-    @rt('/view/timetable/')
+    @rt('/view/timetable/{year}-{sem}-{local_deg}')
     def post(session, year:str=None, sem:str=None, deg:str=None):
         print("view",year, sem, deg)
-        if year : session['year'] = year
-        else : year = session['year']
-        if sem : session['sem'] = sem
-        else : sem = session['sem']
-        if deg : session['degree'] = deg
-        else : deg = session['degree']
-        print("view2", year, sem, deg)
-        print("Inside post", session)
+        # if year : session['year'] = year
+        # else : year = session['year']
+        # if sem : session['sem'] = sem
+        # else : sem = session['sem']
+        # if deg : session['degree'] = deg
+        # else : deg = session['degree']
+        # print("view2", year, sem, deg)
+        # print("Inside post", session)
         # session['year'] = year if year else year = session['year']
         # session['sem'] = sem if sem else sem = session['sem']
         # session['degree'] = degree if degree else degree = session['degree']
-        return Meta(http_equiv="refresh", content=f"0;/view/timetable/?year={year}&sem={sem}&degree={deg}")
+        return Meta(http_equiv="refresh", content=f"0;/view/timetable/?year={year}&sem={sem}&deg={deg}")
 
     def get_dropdown(course_list, current_sub_value, day, time, rowid) :
 
